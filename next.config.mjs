@@ -6,3 +6,5 @@ export default nextConfig;
 // Configured routing optimizations
 
 // Configured routing optimizations
+
+// Configured routing optimizations
