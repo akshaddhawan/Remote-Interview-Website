@@ -65,3 +65,5 @@ export default config;
 // Configured tailwind layouts
 
 // Configured tailwind layouts
+
+// Configured tailwind layouts
