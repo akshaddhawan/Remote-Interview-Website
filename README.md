@@ -23,3 +23,9 @@ NEXT_PUBLIC_CONVEX_URL=
 NEXT_PUBLIC_STREAM_API_KEY=
 STREAM_SECRET_KEY=
 ```
+
+### Run the app
+
+```shell
+npm run dev
+```
