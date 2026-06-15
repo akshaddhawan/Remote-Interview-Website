@@ -4,15 +4,33 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "./ui/resiz
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { AlertCircleIcon, BookIcon, LightbulbIcon } from "lucide-react";
+import {
+  AlertCircleIcon,
+  BookIcon,
+  CheckCircle2Icon,
+  LightbulbIcon,
+  Loader2Icon,
+  SendIcon,
+} from "lucide-react";
 import Editor from "@monaco-editor/react";
 import AICodeReviewPanel from "./AICodeReviewPanel";
+import { Button } from "./ui/button";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import toast from "react-hot-toast";
+import { Badge } from "./ui/badge";
+import { format } from "date-fns";
 
-function CodeEditor() {
+function CodeEditor({ interviewId }: { interviewId?: string }) {
   const [selectedQuestion, setSelectedQuestion] = useState(CODING_QUESTIONS[0]);
   const [language, setLanguage] = useState<"javascript" | "python" | "java">(LANGUAGES[0].id);
   const [code, setCode] = useState(selectedQuestion.starterCode[language]);
-  const [showAIPanel, setShowAIPanel] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const submitCode = useMutation(api.codeSubmissions.submitCode);
+  const submissions = useQuery(api.codeSubmissions.getSubmissions, {
+    interviewId: interviewId,
+  });
 
   const handleQuestionChange = (questionId: string) => {
     const question = CODING_QUESTIONS.find((q) => q.id === questionId)!;
@@ -23,6 +41,29 @@ function CodeEditor() {
   const handleLanguageChange = (newLanguage: "javascript" | "python" | "java") => {
     setLanguage(newLanguage);
     setCode(selectedQuestion.starterCode[newLanguage]);
+  };
+
+  const handleSubmitCode = async () => {
+    if (!code.trim()) {
+      toast.error("Please write some code before submitting");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await submitCode({
+        interviewId: interviewId,
+        code,
+        language,
+        question: selectedQuestion.title,
+      });
+      toast.success("Code submitted successfully!");
+    } catch (error) {
+      console.error("Failed to submit code:", error);
+      toast.error("Failed to submit code");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -44,7 +85,7 @@ function CodeEditor() {
                     Choose your language and solve the problem
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                   <Select value={selectedQuestion.id} onValueChange={handleQuestionChange}>
                     <SelectTrigger className="w-[180px] border-border/50">
                       <SelectValue placeholder="Select question" />
@@ -60,7 +101,6 @@ function CodeEditor() {
 
                   <Select value={language} onValueChange={handleLanguageChange}>
                     <SelectTrigger className="w-[150px] border-border/50">
-                      {/* SELECT VALUE */}
                       <SelectValue>
                         <div className="flex items-center gap-2">
                           <img
@@ -72,7 +112,6 @@ function CodeEditor() {
                         </div>
                       </SelectValue>
                     </SelectTrigger>
-                    {/* SELECT CONTENT */}
                     <SelectContent>
                       {LANGUAGES.map((lang) => (
                         <SelectItem key={lang.id} value={lang.id}>
@@ -89,14 +128,69 @@ function CodeEditor() {
                     </SelectContent>
                   </Select>
 
-                  {/* AI Review Toggle */}
+                  {/* AI Review */}
                   <AICodeReviewPanel
                     code={code}
                     language={language}
                     question={selectedQuestion.title}
                   />
+
+                  {/* Submit Code Button */}
+                  <Button
+                    onClick={handleSubmitCode}
+                    disabled={isSubmitting || !code.trim()}
+                    className="gap-2 bg-emerald-600 hover:bg-emerald-500 text-white glow-sm hover:glow-md transition-all"
+                    size="sm"
+                  >
+                    {isSubmitting ? (
+                      <Loader2Icon className="size-4 animate-spin" />
+                    ) : (
+                      <SendIcon className="size-4" />
+                    )}
+                    Submit Code
+                  </Button>
                 </div>
               </div>
+
+              {/* PREVIOUS SUBMISSIONS */}
+              {submissions && submissions.length > 0 && (
+                <Card className="border-border/50 glass border-l-4 border-l-emerald-500">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <CheckCircle2Icon className="size-4 text-emerald-400" />
+                        Submitted Solutions
+                      </CardTitle>
+                      <Badge variant="secondary" className="text-xs">
+                        {submissions.length} submission{submissions.length !== 1 ? "s" : ""}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {submissions.map((sub, index) => (
+                        <div
+                          key={sub._id}
+                          className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30 border border-border/30 text-sm"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="size-6 rounded-full bg-emerald-500/10 flex items-center justify-center text-xs font-bold text-emerald-400">
+                              {submissions.length - index}
+                            </span>
+                            <div>
+                              <span className="font-medium">{sub.question}</span>
+                              <span className="text-muted-foreground ml-2">• {sub.language}</span>
+                            </div>
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {format(sub._creationTime, "h:mm a")}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* PROBLEM DESC. */}
               <Card className="border-border/50 glass">

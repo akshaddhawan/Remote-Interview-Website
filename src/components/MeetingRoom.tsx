@@ -4,6 +4,7 @@ import {
   CallParticipantsList,
   PaginatedGridLayout,
   SpeakerLayout,
+  useCall,
   useCallStateHooks,
 } from "@stream-io/video-react-sdk";
 import { LayoutListIcon, LoaderIcon, UsersIcon } from "lucide-react";
@@ -25,6 +26,7 @@ function MeetingRoom() {
   const [layout, setLayout] = useState<"grid" | "speaker">("speaker");
   const [showParticipants, setShowParticipants] = useState(false);
   const { useCallCallingState } = useCallStateHooks();
+  const call = useCall();
 
   const callingState = useCallCallingState();
 
@@ -96,7 +98,7 @@ function MeetingRoom() {
         <ResizableHandle withHandle />
 
         <ResizablePanel defaultSize={65} minSize={25}>
-          <CodeEditor />
+          <CodeEditor interviewId={call?.id} />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
