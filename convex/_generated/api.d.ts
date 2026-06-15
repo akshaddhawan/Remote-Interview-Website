@@ -8,9 +8,11 @@
  * @module
  */
 
+import type * as ai from "../ai.js";
 import type * as comments from "../comments.js";
 import type * as http from "../http.js";
 import type * as interviews from "../interviews.js";
+import type * as notes from "../notes.js";
 import type * as users from "../users.js";
 
 import type {
@@ -20,9 +22,11 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  ai: typeof ai;
   comments: typeof comments;
   http: typeof http;
   interviews: typeof interviews;
+  notes: typeof notes;
   users: typeof users;
 }>;
 

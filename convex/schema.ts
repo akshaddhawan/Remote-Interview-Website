@@ -29,4 +29,29 @@ export default defineSchema({
     interviewerId: v.string(),
     interviewId: v.id("interviews"),
   }).index("by_interview_id", ["interviewId"]),
+
+  codeSubmissions: defineTable({
+    interviewId: v.optional(v.string()),
+    code: v.string(),
+    language: v.string(),
+    question: v.string(),
+    aiReview: v.optional(v.string()),
+    submittedBy: v.string(),
+  }).index("by_interview_id", ["interviewId"]),
+
+  aiSummaries: defineTable({
+    interviewId: v.id("interviews"),
+    summary: v.string(),
+    strengths: v.array(v.string()),
+    improvements: v.array(v.string()),
+    overallScore: v.number(),
+  }).index("by_interview_id", ["interviewId"]),
+
+  notes: defineTable({
+    interviewId: v.id("interviews"),
+    interviewerId: v.string(),
+    content: v.string(),
+  })
+    .index("by_interview_id", ["interviewId"])
+    .index("by_interview_id_and_interviewer_id", ["interviewId", "interviewerId"]),
 });

@@ -6,11 +6,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { AlertCircleIcon, BookIcon, LightbulbIcon } from "lucide-react";
 import Editor from "@monaco-editor/react";
+import AICodeReviewPanel from "./AICodeReviewPanel";
 
 function CodeEditor() {
   const [selectedQuestion, setSelectedQuestion] = useState(CODING_QUESTIONS[0]);
   const [language, setLanguage] = useState<"javascript" | "python" | "java">(LANGUAGES[0].id);
   const [code, setCode] = useState(selectedQuestion.starterCode[language]);
+  const [showAIPanel, setShowAIPanel] = useState(false);
 
   const handleQuestionChange = (questionId: string) => {
     const question = CODING_QUESTIONS.find((q) => q.id === questionId)!;
@@ -34,7 +36,7 @@ function CodeEditor() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-semibold tracking-tight">
+                    <h2 className="text-2xl font-bold tracking-tight">
                       {selectedQuestion.title}
                     </h2>
                   </div>
@@ -44,7 +46,7 @@ function CodeEditor() {
                 </div>
                 <div className="flex items-center gap-3">
                   <Select value={selectedQuestion.id} onValueChange={handleQuestionChange}>
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-[180px] border-border/50">
                       <SelectValue placeholder="Select question" />
                     </SelectTrigger>
                     <SelectContent>
@@ -57,7 +59,7 @@ function CodeEditor() {
                   </Select>
 
                   <Select value={language} onValueChange={handleLanguageChange}>
-                    <SelectTrigger className="w-[150px]">
+                    <SelectTrigger className="w-[150px] border-border/50">
                       {/* SELECT VALUE */}
                       <SelectValue>
                         <div className="flex items-center gap-2">
@@ -86,11 +88,18 @@ function CodeEditor() {
                       ))}
                     </SelectContent>
                   </Select>
+
+                  {/* AI Review Toggle */}
+                  <AICodeReviewPanel
+                    code={code}
+                    language={language}
+                    question={selectedQuestion.title}
+                  />
                 </div>
               </div>
 
               {/* PROBLEM DESC. */}
-              <Card>
+              <Card className="border-border/50 glass">
                 <CardHeader className="flex flex-row items-center gap-2">
                   <BookIcon className="h-5 w-5 text-primary/80" />
                   <CardTitle>Problem Description</CardTitle>
@@ -103,19 +112,19 @@ function CodeEditor() {
               </Card>
 
               {/* PROBLEM EXAMPLES */}
-              <Card>
+              <Card className="border-border/50 glass">
                 <CardHeader className="flex flex-row items-center gap-2">
                   <LightbulbIcon className="h-5 w-5 text-yellow-500" />
                   <CardTitle>Examples</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ScrollArea className="h-full w-full rounded-md border">
+                  <ScrollArea className="h-full w-full rounded-lg border border-border/50">
                     <div className="p-4 space-y-4">
                       {selectedQuestion.examples.map((example, index) => (
                         <div key={index} className="space-y-2">
                           <p className="font-medium text-sm">Example {index + 1}:</p>
                           <ScrollArea className="h-full w-full rounded-md">
-                            <pre className="bg-muted/50 p-3 rounded-lg text-sm font-mono">
+                            <pre className="bg-muted/30 p-3 rounded-lg text-sm font-mono border border-border/30">
                               <div>Input: {example.input}</div>
                               <div>Output: {example.output}</div>
                               {example.explanation && (
@@ -136,7 +145,7 @@ function CodeEditor() {
 
               {/* CONSTRAINTS */}
               {selectedQuestion.constraints && (
-                <Card>
+                <Card className="border-border/50 glass">
                   <CardHeader className="flex flex-row items-center gap-2">
                     <AlertCircleIcon className="h-5 w-5 text-blue-500" />
                     <CardTitle>Constraints</CardTitle>
@@ -172,13 +181,18 @@ function CodeEditor() {
             onChange={(value) => setCode(value || "")}
             options={{
               minimap: { enabled: false },
-              fontSize: 18,
+              fontSize: 16,
               lineNumbers: "on",
               scrollBeyondLastLine: false,
               automaticLayout: true,
               padding: { top: 16, bottom: 16 },
               wordWrap: "on",
               wrappingIndent: "indent",
+              fontFamily: "'JetBrains Mono', monospace",
+              fontLigatures: true,
+              renderLineHighlight: "all",
+              cursorBlinking: "smooth",
+              smoothScrolling: true,
             }}
           />
         </div>

@@ -31,7 +31,7 @@ function MeetingRoom() {
   if (callingState !== CallingState.JOINED) {
     return (
       <div className="h-96 flex items-center justify-center">
-        <LoaderIcon className="size-6 animate-spin" />
+        <LoaderIcon className="size-6 animate-spin text-primary" />
       </div>
     );
   }
@@ -46,27 +46,28 @@ function MeetingRoom() {
 
             {/* PARTICIPANTS LIST OVERLAY */}
             {showParticipants && (
-              <div className="absolute right-0 top-0 h-full w-[300px] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+              <div className="absolute right-0 top-0 h-full w-[300px] glass-heavy border-l border-border/50">
                 <CallParticipantsList onClose={() => setShowParticipants(false)} />
               </div>
             )}
           </div>
 
           {/* VIDEO CONTROLS */}
-
           <div className="absolute bottom-4 left-0 right-0">
             <div className="flex flex-col items-center gap-4">
               <div className="flex items-center gap-2 flex-wrap justify-center px-4">
-                <CallControls onLeave={() => router.push("/")} />
+                <div className="glass-heavy rounded-2xl p-1">
+                  <CallControls onLeave={() => router.push("/")} />
+                </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 glass-heavy rounded-2xl p-1">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="icon" className="size-10">
+                      <Button variant="ghost" size="icon" className="size-10 rounded-xl hover:bg-primary/10">
                         <LayoutListIcon className="size-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
+                    <DropdownMenuContent className="glass-heavy">
                       <DropdownMenuItem onClick={() => setLayout("grid")}>
                         Grid View
                       </DropdownMenuItem>
@@ -77,9 +78,9 @@ function MeetingRoom() {
                   </DropdownMenu>
 
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="icon"
-                    className="size-10"
+                    className="size-10 rounded-xl hover:bg-primary/10"
                     onClick={() => setShowParticipants(!showParticipants)}
                   >
                     <UsersIcon className="size-4" />

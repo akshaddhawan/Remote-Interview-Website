@@ -17,7 +17,7 @@ function InitialUserSync() {
 
   useEffect(() => {
     if (user) {
-      syncUser();
+      syncUser({});
     }
   }, [user, syncUser]);
 
@@ -27,7 +27,7 @@ function InitialUserSync() {
 function ConvexClerkProvider({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
-      <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+      <ConvexProviderWithClerk client={convex} useAuth={useAuth as any}>
         <InitialUserSync />
         {children}
       </ConvexProviderWithClerk>
